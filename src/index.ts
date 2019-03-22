@@ -46,11 +46,7 @@ function pushText (segments: Segment[], text: string) {
   if (last && last.type === 'text') {
     last.value += text
   } else {
-    segments.push({
-      type: 'text',
-      math: false,
-      value: text
-    })
+    segments.push({ type: 'text', math: false, value: text })
   }
 }
 
@@ -59,9 +55,5 @@ function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string
     return
   }
 
-  segments.push({
-    type: mode,
-    math: true,
-    value: text.replace(/\\\$/g, '$')
-  })
+  segments.push({ type: mode, math: true, value: text.replace(/\\\$/g, '$') })
 }
