@@ -20,14 +20,17 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "tsc --watch",
     "build": "tsc",
     "clean": "rimraf lib",
     "prepare": "npm run clean && npm run build"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "jest": "^24.5.0",
     "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.0",
     "typescript": "^3.3.4000"
   },
   "files": [
