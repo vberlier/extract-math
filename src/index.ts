@@ -54,11 +54,7 @@ function pushText (segments: Segment[], text: string) {
   }
 }
 
-function pushMath (
-  segments: Segment[],
-  mode: 'inline' | 'display',
-  text: string
-) {
+function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string) {
   if (!text) {
     return
   }
