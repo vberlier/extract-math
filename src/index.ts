@@ -6,7 +6,7 @@ export interface Segment {
 
 export const SEGMENTS_REGEX = /(\\\$)|\$\$(.*?[^\\])\$\$|\$(.*?[^\\])\$/
 
-export function extractMath(input: string): Segment[] {
+export default function extractMath(input: string): Segment[] {
   const segments: Segment[] = []
 
   let dollar: string
