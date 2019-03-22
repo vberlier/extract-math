@@ -1,0 +1,21 @@
+language: node_js
+
+sudo: false
+dist: xenial
+
+cache: npm
+
+script:
+  - npm run lint
+  - npm test
+
+jobs:
+  include:
+    - node_js: 11
+
+    - stage: publish
+      node_js: 11
+      if: tag IS present
+      script:
+        - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+        - npm publish || echo "Version $TRAVIS_TAG is already published"
