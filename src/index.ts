@@ -66,6 +66,6 @@ function pushMath (
   segments.push({
     type: mode,
     math: true,
-    value: text.replace('\\$', '$')
+    value: text.replace(/\\\$/g, '$')
   })
 }
