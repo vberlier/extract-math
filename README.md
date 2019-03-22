@@ -5,7 +5,7 @@
 
 > Extract TeX math environments.
 
-This package parses Tex shorthands for mathematics environments and extracts inlined formulas (e.g.: `$x + 1$`) and displayed equations (e.g.: `$$\sum_{i=1}^n 2^i$$`).
+This package parses TeX shorthands for mathematics environments and extracts inline formulas (e.g.: `$x + 1$`) and displayed equations (e.g.: `$$\sum_{i=1}^n 2^i$$`).
 
 ```js
 import { extractMath } from 'extract-math'
@@ -28,7 +28,38 @@ $ npm install extract-math
 
 ## Usage
 
-TODO...
+### extractMath(input)
+
+Parse the input string and return an array of `Segment` objects. `Segment` objects are defined by the following typescript interface:
+
+```ts
+interface Segment {
+  type: 'text' | 'display' | 'inline'
+  math: boolean
+  value: string
+}
+```
+
+> The `Segment` interface can be imported with `import { Segment } from 'extract-math'`
+
+The function splits the input string into 3 different types of segments:
+
+- Plain text segments have a `text` type and the `math` property set to `false`
+- Displayed equations have a `display` type and the `math` property set to `true`
+- Inline formulas have an `inline` type and the `math` property set to `true`
+
+### Escaping
+
+Any dollar sign `$` immediately preceded by a backslash `\` will be automatically escaped.
+
+```js
+const segments = extractMath('in plain \\$ text $$in \\$ equation$$')
+console.log(segments)
+// Output: [
+//   { type: 'text', math: false, value: 'in plain $ text ' },
+//   { type: 'display', math: true, value: 'in $ equation' }
+// ]
+```
 
 ## Contributing
 
