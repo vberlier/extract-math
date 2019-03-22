@@ -25,7 +25,8 @@
     "dev": "tsc --watch",
     "build": "tsc",
     "clean": "rimraf lib",
-    "prepare": "npm run clean && npm run build"
+    "prepare": "npm run clean && npm run build",
+    "postversion": "git push --follow-tags"
   },
   "devDependencies": {
     "@types/jest": "^24.0.11",
