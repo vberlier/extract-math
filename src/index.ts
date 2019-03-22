@@ -1,12 +1,12 @@
 export interface Segment {
-  type: "text" | "display" | "inline"
+  type: 'text' | 'display' | 'inline'
   math: boolean
   value: string
 }
 
 export const SEGMENTS_REGEX = /(\\\$)|\$\$(.*?[^\\])\$\$|\$(.*?[^\\])\$/
 
-export function extractMath(input: string): Segment[] {
+export function extractMath (input: string): Segment[] {
   const segments: Segment[] = []
 
   let dollar: string
@@ -18,17 +18,17 @@ export function extractMath(input: string): Segment[] {
   pushText(segments, text)
 
   while (parts.length > 0) {
-    ;[dollar, display, inline, ...parts] = parts
+    [dollar, display, inline, ...parts] = parts
 
     if (dollar) {
-      pushText(segments, "$")
+      pushText(segments, '$')
     } else if (display) {
-      pushMath(segments, "display", display)
+      pushMath(segments, 'display', display)
     } else if (inline) {
-      pushMath(segments, "inline", inline)
+      pushMath(segments, 'inline', inline)
     }
 
-    ;[text, ...parts] = parts
+    [text, ...parts] = parts
 
     pushText(segments, text)
   }
@@ -36,27 +36,27 @@ export function extractMath(input: string): Segment[] {
   return segments
 }
 
-function pushText(segments: Segment[], text: string) {
+function pushText (segments: Segment[], text: string) {
   if (!text) {
     return
   }
 
   const last = segments[segments.length - 1]
 
-  if (last && last.type === "text") {
+  if (last && last.type === 'text') {
     last.value += text
   } else {
     segments.push({
-      type: "text",
+      type: 'text',
       math: false,
       value: text
     })
   }
 }
 
-function pushMath(
+function pushMath (
   segments: Segment[],
-  mode: "inline" | "display",
+  mode: 'inline' | 'display',
   text: string
 ) {
   if (!text) {
@@ -66,6 +66,6 @@ function pushMath(
   segments.push({
     type: mode,
     math: true,
-    value: text.replace("\\$", "$")
+    value: text.replace('\\$', '$')
   })
 }

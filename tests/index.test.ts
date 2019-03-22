@@ -1,50 +1,50 @@
-import { extractMath } from "../src"
+import { extractMath } from '../src'
 
-test("empty input", () => {
-  const segments = extractMath("")
+test('empty input', () => {
+  const segments = extractMath('')
   expect(segments).toEqual([])
 })
 
-test("plain text", () => {
-  const segments = extractMath("hello world")
+test('plain text', () => {
+  const segments = extractMath('hello world')
   expect(segments).toEqual([
     {
-      type: "text",
+      type: 'text',
       math: false,
-      value: "hello world"
+      value: 'hello world'
     }
   ])
 })
 
-test("escaped dollar", () => {
-  const segments = extractMath("\\$")
+test('escaped dollar', () => {
+  const segments = extractMath('\\$')
   expect(segments).toEqual([
     {
-      type: "text",
+      type: 'text',
       math: false,
-      value: "$"
+      value: '$'
     }
   ])
 })
 
-test("inline math", () => {
-  const segments = extractMath("$123 + \\$1$")
+test('inline math', () => {
+  const segments = extractMath('$123 + \\$1$')
   expect(segments).toEqual([
     {
-      type: "inline",
+      type: 'inline',
       math: true,
-      value: "123 + $1"
+      value: '123 + $1'
     }
   ])
 })
 
-test("display math", () => {
-  const segments = extractMath("$$123 + \\$1$$")
+test('display math', () => {
+  const segments = extractMath('$$123 + \\$1$$')
   expect(segments).toEqual([
     {
-      type: "display",
+      type: 'display',
       math: true,
-      value: "123 + $1"
+      value: '123 + $1'
     }
   ])
 })
