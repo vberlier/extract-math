@@ -1,0 +1,37 @@
+{
+  "name": "extract-math",
+  "version": "0.1.0",
+  "description": "Extract TeX math environments",
+  "author": "Valentin Berlier <berlier.v@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "latex",
+    "katex",
+    "tex",
+    "math"
+  ],
+  "homepage": "https://github.com/vberlier/extract-math#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vberlier/extract-math.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vberlier/extract-math/issues"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "clean": "rimraf lib",
+    "prepare": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "rimraf": "^2.6.3",
+    "typescript": "^3.3.4000"
+  },
+  "files": [
+    "lib/**/*",
+    "src/**/*"
+  ]
+}
