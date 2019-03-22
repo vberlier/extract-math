@@ -6,7 +6,7 @@ Array [
     "math": false,
     "type": "text",
     "value": "
-    You can write text, that contains expressions like this: ",
+    Text with an inline formula ",
   },
   Object {
     "math": true,
@@ -16,8 +16,9 @@ Array [
   Object {
     "math": false,
     "type": "text",
-    "value": " inside them. As you probably know.
-    You also can write expressions in display mode as follows: ",
+    "value": " and a displayed equation:
+
+    ",
   },
   Object {
     "math": true,
@@ -27,9 +28,10 @@ Array [
   Object {
     "math": false,
     "type": "text",
-    "value": ".
-    In first case you will need to use $expression$ and in the second one $$expression$$.
-    To scape the $ symbol it's mandatory to write as follows: \\\\$
+    "value": "
+
+    The inline formula is represented as $expression$ and the displayed equation as $$expression$$.
+    The $ symbol can be escaped like this: \\\\$
   ",
   },
 ]

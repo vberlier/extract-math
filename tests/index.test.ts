@@ -51,10 +51,12 @@ test('display math', () => {
 
 test('combined text', () => {
   const segments = extractMath(`
-    You can write text, that contains expressions like this: $x ^ 2 + 5$ inside them. As you probably know.
-    You also can write expressions in display mode as follows: $$\\sum_{i=1}^n(x_i^2 - \\overline{x}^2)$$.
-    In first case you will need to use \\$expression\\$ and in the second one \\$\\$expression\\$\\$.
-    To scape the \\$ symbol it's mandatory to write as follows: \\\\$
+    Text with an inline formula $x ^ 2 + 5$ and a displayed equation:
+
+    $$\\sum_{i=1}^n(x_i^2 - \\overline{x}^2)$$
+
+    The inline formula is represented as \\$expression\\$ and the displayed equation as \\$\\$expression\\$\\$.
+    The \\$ symbol can be escaped like this: \\\\$
   `)
   expect(segments).toMatchSnapshot()
 })
