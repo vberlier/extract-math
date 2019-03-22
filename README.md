@@ -5,7 +5,7 @@
 
 > Extract TeX math environments.
 
-This package parses TeX shorthands for mathematics environments and extracts inline formulas (e.g.: `$x + 1$`) and displayed equations (e.g.: `$$\sum_{i=1}^n 2^i$$`).
+This package parses [TeX shorthands](https://en.wikibooks.org/wiki/LaTeX/Mathematics#Mathematics_environments) for mathematics environments and extracts inline formulas (e.g.: `$x + 1$`) and displayed equations (e.g.: `$$\sum_{i=1}^n 2^i$$`).
 
 ```js
 import { extractMath } from 'extract-math'
