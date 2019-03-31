@@ -11,7 +11,8 @@ test('plain text', () => {
     {
       type: 'text',
       math: false,
-      value: 'hello world'
+      value: 'hello world',
+      raw: 'hello world'
     }
   ])
 })
@@ -22,7 +23,8 @@ test('escaped dollar', () => {
     {
       type: 'text',
       math: false,
-      value: '$'
+      value: '$',
+      raw: '$'
     }
   ])
 })
@@ -33,7 +35,8 @@ test('inline math', () => {
     {
       type: 'inline',
       math: true,
-      value: '123 + $1'
+      value: '123 + $1',
+      raw: '123 + \\$1'
     }
   ])
 })
@@ -44,7 +47,8 @@ test('display math', () => {
     {
       type: 'display',
       math: true,
-      value: '123 + $1'
+      value: '123 + $1',
+      raw: '123 + \\$1'
     }
   ])
 })
@@ -64,10 +68,10 @@ test('combined text', () => {
 test('escaped dollar in math', () => {
   const segments = extractMath(`$$hello\\$$$$t\\$hing\\$$\\$\\$$a$a`)
   expect(segments).toEqual([
-    { type: 'display', math: true, value: 'hello$' },
-    { type: 'inline', math: true, value: 't$hing$' },
-    { type: 'text', math: false, value: '$$' },
-    { type: 'inline', math: true, value: 'a' },
-    { type: 'text', math: false, value: 'a' }
+    { type: 'display', math: true, value: 'hello$', raw: 'hello\\$' },
+    { type: 'inline', math: true, value: 't$hing$', raw: 't\\$hing\\$' },
+    { type: 'text', math: false, value: '$$', raw: '$$' },
+    { type: 'inline', math: true, value: 'a', raw: 'a' },
+    { type: 'text', math: false, value: 'a', raw: 'a' }
   ])
 })

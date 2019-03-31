@@ -2,6 +2,7 @@ export interface Segment {
   type: 'text' | 'display' | 'inline'
   math: boolean
   value: string
+  raw: string
 }
 
 export const SEGMENTS_REGEX = /(\\\$)|\$\$(.*?[^\\])\$\$|\$(.*?[^\\])\$/
@@ -45,8 +46,9 @@ function pushText (segments: Segment[], text: string) {
 
   if (last && last.type === 'text') {
     last.value += text
+    last.raw += text
   } else {
-    segments.push({ type: 'text', math: false, value: text })
+    segments.push({ type: 'text', math: false, value: text, raw: text })
   }
 }
 
@@ -55,5 +57,5 @@ function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string
     return
   }
 
-  segments.push({ type: mode, math: true, value: text.replace(/\\\$/g, '$') })
+  segments.push({ type: mode, math: true, value: text.replace(/\\\$/g, '$'), raw: text })
 }

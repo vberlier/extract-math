@@ -14,8 +14,8 @@ import { extractMath } from 'extract-math'
 const segments = extractMath('hello $e^{i\\pi}$')
 console.log(segments)
 // Output: [
-//   { type: 'text', math: false, value: 'hello ' },
-//   { type: 'inline', math: true, value: 'e^{i\\pi}' }
+//   { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
+//   { type: 'inline', math: true, value: 'e^{i\\pi}', raw: 'e^{i\\pi}' }
 // ]
 ```
 
@@ -38,6 +38,7 @@ interface Segment {
   type: 'text' | 'display' | 'inline'
   math: boolean
   value: string
+  raw: string
 }
 ```
 
@@ -57,9 +58,17 @@ Any dollar sign `$` immediately preceded by a backslash `\` will be automaticall
 const segments = extractMath('in plain \\$ text $$in \\$ equation$$')
 console.log(segments)
 // Output: [
-//   { type: 'text', math: false, value: 'in plain $ text ' },
-//   { type: 'display', math: true, value: 'in $ equation' }
+//   { type: 'text', math: false, value: 'in plain $ text ', raw: 'in plain $ text ' },
+//   { type: 'display', math: true, value: 'in $ equation', raw: 'in \\$ equation' }
 // ]
+```
+
+The `raw` property is set to the original string contained between the math delimiters, meaning that the escape sequences are not interpreted. For plain text segments, the property is equal to the `value` property.
+
+This is especially useful if you're then passing the math expressions to a math typesetting library like [KaTeX](https://katex.org/), which expects dollar signs to be escaped.
+
+```js
+katex.render(segment[1].raw, ...)
 ```
 
 ## Contributing
