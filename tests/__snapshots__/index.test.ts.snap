@@ -36,16 +36,14 @@ Array [
     "math": false,
     "raw": "
 
-    The inline formula is represented as @expression@ and the displayed equation as &expression&.
-    The @ symbol can be escaped like this: \\\\@
-    The & symbol can be escaped like this: \\\\&
+    The inline formula is represented as $expression$ and the displayed equation as $$expression$$.
+    The $ symbol can be escaped like this: \\\\$
   ",
     "type": "text",
     "value": "
 
-    The inline formula is represented as @expression@ and the displayed equation as &expression&.
-    The @ symbol can be escaped like this: \\\\@
-    The & symbol can be escaped like this: \\\\&
+    The inline formula is represented as $expression$ and the displayed equation as $$expression$$.
+    The $ symbol can be escaped like this: \\\\$
   ",
   },
 ]
