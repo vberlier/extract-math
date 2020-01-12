@@ -41,10 +41,12 @@ export class Delimiters {
   }
 
   get inlineRegExp (): RegExp {
+    // language=JSRegexp
     return new RegExp(`${this.escapedInlineOpening}(.*?[^${ESCAPE_DELIMITER}])${this.escapedInlineClosing}`)
   }
 
   get displayRegExp (): RegExp {
+    // language=JSRegexp
     return new RegExp(`${this.escapedDisplayOpening}(.*?[^${ESCAPE_DELIMITER}])${this.escapedDisplayClosing}`)
   }
 
