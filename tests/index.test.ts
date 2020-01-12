@@ -1,4 +1,4 @@
-import { extractMath } from '../src'
+import { extractMath, Delimiters } from '../src'
 
 test('empty input', () => {
   const segments = extractMath('')
@@ -74,7 +74,22 @@ test('combined text custom delimiters', () => {
     The inline formula is represented as \\@expression\\@ and the displayed equation as \\&expression\\&.
     The \\@ symbol can be escaped like this: \\\\@
     The \\& symbol can be escaped like this: \\\\&
-  `, '@', '&')
+  `, new Delimiters('@', '&'))
+  expect(segments).toMatchSnapshot()
+})
+
+test('combined text custom opening and closing delimiters', () => {
+  const segments = extractMath(`
+    Text with an inline formula \\(x ^ 2 + 5\\) and a displayed equation:
+
+    \\[\\sum_{i=1}^n(x_i^2 - \\overline{x}^2)\\]
+
+    The inline formula is represented as \\\\(expression\\\\) and the displayed equation as \\\\[expression\\\\].
+    The \\\\( symbol can be escaped like this: \\\\\\(
+    The \\\\) symbol can be escaped like this: \\\\\\)
+    The \\\\[ symbol can be escaped like this: \\\\\\[
+    The \\\\] symbol can be escaped like this: \\\\\\]
+  `, new Delimiters(undefined, undefined, '\\(', '\\)', '\\[', '\\]'))
   expect(segments).toMatchSnapshot()
 })
 

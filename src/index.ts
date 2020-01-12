@@ -6,14 +6,122 @@ export interface Segment {
   value: string
   raw: string
 }
+
+export class Delimiters {
+  public inlineOpening: string
+  public inlineClosing: string
+  public displayOpening: string
+  public displayClosing: string
+
+  constructor (inline?: string, display?: string, inlineOpening?: string, inlineClosing?: string,
+               displayOpening?: string, displayClosing?: string) {
+
+    if (!(inline || (inlineOpening && inlineClosing))) {
+      throw new Error()
+    }
+    if (!(display || (displayOpening && displayClosing))) {
+      throw new Error()
+    }
+
+    // @ts-ignore
+    this.inlineOpening = inlineOpening ? inlineOpening : inline
+    // @ts-ignore
+    this.inlineClosing = inlineClosing ? inlineClosing : inline
+
+    // @ts-ignore
+    this.displayOpening = displayOpening ? displayOpening : display
+    // @ts-ignore
+    this.displayClosing = displayClosing ? displayClosing : display
+  }
+
+  get escapedInlineOpening (): string {
+    return escapeStringRegexp(this.inlineOpening)
+  }
+
+  get escapedInlineClosing (): string {
+    return escapeStringRegexp(this.inlineClosing)
+  }
+
+  get escapedDisplayOpening (): string {
+    return escapeStringRegexp(this.displayOpening)
+  }
+
+  get escapedDisplayClosing (): string {
+    return escapeStringRegexp(this.displayClosing)
+  }
+
+  get inlineRegExp (): RegExp {
+    return new RegExp(`${this.escapedInlineOpening}(.*?[^${ESCAPE_DELIMITER}])${this.escapedInlineClosing}`)
+  }
+
+  get displayRegExp (): RegExp {
+    return new RegExp(`${this.escapedDisplayOpening}(.*?[^${ESCAPE_DELIMITER}])${this.escapedDisplayClosing}`)
+  }
+
+  get textWithInlineOpeningRegExp (): RegExp {
+    return new RegExp(`(${ESCAPE_DELIMITER}${this.escapedInlineOpening})`)
+  }
+
+  get textWithInlineClosingRegExp (): RegExp {
+    return new RegExp(`(${ESCAPE_DELIMITER}${this.escapedInlineClosing})`)
+  }
+
+  get textWithDisplayOpeningRegExp (): RegExp {
+    return new RegExp(`(${ESCAPE_DELIMITER}${this.escapedDisplayOpening})`)
+  }
+
+  get textWithDisplayClosingRegExp (): RegExp {
+    return new RegExp(`(${ESCAPE_DELIMITER}${this.escapedDisplayClosing})`)
+  }
+
+  get regExp (): RegExp {
+    return new RegExp([
+      this.textWithInlineOpeningRegExp.source,
+      this.textWithInlineClosingRegExp.source,
+      this.textWithDisplayOpeningRegExp.source,
+      this.textWithDisplayClosingRegExp.source,
+      this.displayRegExp.source,
+      this.inlineRegExp.source
+    ].join('|'))
+  }
+
+  get replaceDisplayOpeningRegExp () {
+    return new RegExp(`${ESCAPE_DELIMITER}${this.escapedDisplayOpening}`, 'g')
+  }
+
+  get replaceDisplayClosingRegExp () {
+    return new RegExp(`${ESCAPE_DELIMITER}${this.escapedDisplayClosing}`, 'g')
+  }
+
+  get replaceInlineOpeningRegExp () {
+    return new RegExp(`${ESCAPE_DELIMITER}${this.escapedInlineOpening}`, 'g')
+  }
+
+  get replaceInlineClosingRegExp () {
+    return new RegExp(`${ESCAPE_DELIMITER}${this.escapedInlineClosing}`, 'g')
+  }
+
+  cleanValue (text: string) {
+    return text
+      .replace(this.replaceDisplayOpeningRegExp, this.displayOpening)
+      .replace(this.replaceDisplayClosingRegExp, this.displayClosing)
+      .replace(this.replaceInlineOpeningRegExp, this.inlineOpening)
+      .replace(this.replaceInlineClosingRegExp, this.inlineClosing)
+  }
+
+}
+
 const ESCAPE_DELIMITER = escapeStringRegexp('\\')
 
-export function extractMath (input: string, inlineDelimiter: string = '$', displayDelimiter: string = '$$'): Segment[] {
+export function extractMath (input: string,
+                             delimiters: Delimiters = new Delimiters('$', '$$')): Segment[] {
   const segments: Segment[] = []
-  const pattern: RegExp = buildRegExp(inlineDelimiter, displayDelimiter)
+  const pattern: RegExp = delimiters.regExp
 
-  let textWithInline: string
-  let textWithDisplay: string
+  let textWithInlineOpening: string
+  let textWithInlineClosing: string
+  let textWithDisplayOpening: string
+  let textWithDisplayClosing: string
   let display: string
   let inline: string
 
@@ -22,16 +130,22 @@ export function extractMath (input: string, inlineDelimiter: string = '$', displ
   pushText(segments, text)
 
   while (parts.length > 0) {
-    [textWithInline, textWithDisplay, display, inline, ...parts] = parts
+    [textWithInlineOpening, textWithInlineClosing,
+      textWithDisplayOpening, textWithDisplayClosing,
+      display, inline, ...parts] = parts
 
-    if (textWithInline) {
-      pushText(segments, inlineDelimiter)
-    } else if (textWithDisplay) {
-      pushText(segments, displayDelimiter)
+    if (textWithInlineOpening) {
+      pushText(segments, delimiters.inlineOpening)
+    } else if (textWithInlineClosing) {
+      pushText(segments, delimiters.inlineClosing)
+    } else if (textWithDisplayOpening) {
+      pushText(segments, delimiters.displayOpening)
+    } else if (textWithDisplayClosing) {
+      pushText(segments, delimiters.displayClosing)
     } else if (display) {
-      pushMath(segments, 'display', display, inlineDelimiter, displayDelimiter)
+      pushMath(segments, 'display', display, delimiters)
     } else if (inline) {
-      pushMath(segments, 'inline', inline, inlineDelimiter, displayDelimiter)
+      pushMath(segments, 'inline', inline, delimiters)
     }
 
     [text, ...parts] = parts
@@ -40,35 +154,6 @@ export function extractMath (input: string, inlineDelimiter: string = '$', displ
   }
 
   return segments
-}
-
-function buildRegExp (inlineDelimiter: string, displayDelimiter: string): RegExp {
-  const textWithInline = buildTextWithInlineRegExp(inlineDelimiter)
-  const textWithDisplay = buildTextWithDisplayRegExp(displayDelimiter)
-  const display = buildDisplayRegExp(displayDelimiter)
-  const inline = buildInlineRegExp(inlineDelimiter)
-
-  return new RegExp([textWithInline.source, textWithDisplay.source, display.source, inline.source].join('|'))
-}
-
-function buildTextWithInlineRegExp (inlineDelimiter: string): RegExp {
-  inlineDelimiter = escapeStringRegexp(inlineDelimiter)
-  return new RegExp(`(${ESCAPE_DELIMITER}${inlineDelimiter})`)
-}
-
-function buildTextWithDisplayRegExp (displayDelimiter: string): RegExp {
-  displayDelimiter = escapeStringRegexp(displayDelimiter)
-  return new RegExp(`(${ESCAPE_DELIMITER}${displayDelimiter})`)
-}
-
-function buildDisplayRegExp (displayDelimiter: string): RegExp {
-  displayDelimiter = escapeStringRegexp(displayDelimiter)
-  return new RegExp(`${displayDelimiter}(.*?[^${ESCAPE_DELIMITER}])${displayDelimiter}`)
-}
-
-function buildInlineRegExp (inlineDelimiter: string): RegExp {
-  inlineDelimiter = escapeStringRegexp(inlineDelimiter)
-  return new RegExp(`${inlineDelimiter}(.*?[^${ESCAPE_DELIMITER}])${inlineDelimiter}`)
 }
 
 function pushText (segments: Segment[], text: string) {
@@ -86,29 +171,12 @@ function pushText (segments: Segment[], text: string) {
   }
 }
 
-function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string,
-                   inlineDelimiter: string, displayDelimiter: string) {
+function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string, delimiters: Delimiters) {
   if (!text) {
     return
   }
 
-  const value = cleanValue(text, inlineDelimiter, displayDelimiter)
+  const value = delimiters.cleanValue(text)
 
   segments.push({ type: mode, math: true, value: value, raw: text })
-}
-
-function cleanValue (text: string, inlineDelimiter: string, displayDelimiter: string) {
-  return text
-    .replace(buildReplaceDisplayRegExp(displayDelimiter), displayDelimiter)
-    .replace(buildReplaceInlineRegExp(inlineDelimiter), inlineDelimiter)
-}
-
-function buildReplaceDisplayRegExp (displayDelimiter: string) {
-  displayDelimiter = escapeStringRegexp(displayDelimiter)
-  return new RegExp(`${ESCAPE_DELIMITER}${displayDelimiter}`, 'g')
-}
-
-function buildReplaceInlineRegExp (inlineDelimiter: string) {
-  inlineDelimiter = escapeStringRegexp(inlineDelimiter)
-  return new RegExp(`${ESCAPE_DELIMITER}${inlineDelimiter}`, 'g')
 }
