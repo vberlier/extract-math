@@ -89,7 +89,7 @@ test('combined text custom opening and closing delimiters', () => {
     The \\\\) symbol can be escaped like this: \\\\\\)
     The \\\\[ symbol can be escaped like this: \\\\\\[
     The \\\\] symbol can be escaped like this: \\\\\\]
-  `, new Delimiters(undefined, undefined, '\\(', '\\)', '\\[', '\\]'))
+  `, new Delimiters('\\(', '\\)', '\\[', '\\]'))
   expect(segments).toMatchSnapshot()
 })
 

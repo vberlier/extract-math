@@ -13,25 +13,15 @@ export class Delimiters {
   public displayOpening: string
   public displayClosing: string
 
-  constructor (inline?: string, display?: string, inlineOpening?: string, inlineClosing?: string,
+  constructor (inline: string, display: string)
+  constructor (inlineOpening: string, inlineClosing: string, displayOpening: string, displayClosing: string)
+  constructor (inlineOrInlineOpening: string, displayOrInlineClosing: string,
                displayOpening?: string, displayClosing?: string) {
+    this.inlineOpening = inlineOrInlineOpening
+    this.inlineClosing = displayOpening ? displayOrInlineClosing : inlineOrInlineOpening
 
-    if (!(inline || (inlineOpening && inlineClosing))) {
-      throw new Error()
-    }
-    if (!(display || (displayOpening && displayClosing))) {
-      throw new Error()
-    }
-
-    // @ts-ignore
-    this.inlineOpening = inlineOpening ? inlineOpening : inline
-    // @ts-ignore
-    this.inlineClosing = inlineClosing ? inlineClosing : inline
-
-    // @ts-ignore
-    this.displayOpening = displayOpening ? displayOpening : display
-    // @ts-ignore
-    this.displayClosing = displayClosing ? displayClosing : display
+    this.displayOpening = displayOpening ? displayOpening : displayOrInlineClosing
+    this.displayClosing = displayClosing ? displayClosing : displayOrInlineClosing
   }
 
   get escapedInlineOpening (): string {
@@ -113,8 +103,10 @@ export class Delimiters {
 
 const ESCAPE_DELIMITER = escapeStringRegexp('\\')
 
-export function extractMath (input: string,
-                             delimiters: Delimiters = new Delimiters('$', '$$')): Segment[] {
+export function extractMath (input: string, delimiters?: Delimiters): Segment[] {
+  if (!delimiters) {
+    delimiters = new Delimiters('$', '$$')
+  }
   const segments: Segment[] = []
   const pattern: RegExp = delimiters.regExp
 
@@ -130,8 +122,7 @@ export function extractMath (input: string,
   pushText(segments, text)
 
   while (parts.length > 0) {
-    [textWithInlineOpening, textWithInlineClosing,
-      textWithDisplayOpening, textWithDisplayClosing,
+    [textWithInlineOpening, textWithInlineClosing, textWithDisplayOpening, textWithDisplayClosing,
       display, inline, ...parts] = parts
 
     if (textWithInlineOpening) {
@@ -176,7 +167,5 @@ function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string
     return
   }
 
-  const value = delimiters.cleanValue(text)
-
-  segments.push({ type: mode, math: true, value: value, raw: text })
+  segments.push({ type: mode, math: true, value: delimiters.cleanValue(text), raw: text })
 }
