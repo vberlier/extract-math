@@ -1,4 +1,4 @@
-import { extractMath, Delimiters } from '../src'
+import { extractMath, Delimiters, LATEX_DELIMITERS } from '../src'
 
 test('empty input', () => {
   const segments = extractMath('')
@@ -89,7 +89,7 @@ test('combined text custom opening and closing delimiters', () => {
     The \\\\) symbol can be escaped like this: \\\\\\)
     The \\\\[ symbol can be escaped like this: \\\\\\[
     The \\\\] symbol can be escaped like this: \\\\\\]
-  `, new Delimiters('\\(', '\\)', '\\[', '\\]'))
+  `, LATEX_DELIMITERS)
   expect(segments).toMatchSnapshot()
 })
 

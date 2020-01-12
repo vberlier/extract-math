@@ -4,9 +4,9 @@
 [![npm](https://img.shields.io/npm/v/extract-math.svg)](https://www.npmjs.com/package/extract-math)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/extract-math.svg)](https://bundlephobia.com/result?p=extract-math)
 
-> Extract TeX math environments.
+> Extract LaTeX math environments.
 
-This package parses [TeX shorthands](https://en.wikibooks.org/wiki/LaTeX/Mathematics#Mathematics_environments) for mathematics environments and extracts inline formulas (e.g.: `$x + 1$`) and displayed equations (e.g.: `$$\sum_{i=1}^n 2^i$$`).
+This package parses [LaTeX shorthands](https://en.wikibooks.org/wiki/LaTeX/Mathematics#Mathematics_environments) for mathematics environments and extracts inline formulas (e.g.: `$x + 1$`) and displayed equations (e.g.: `$$\sum_{i=1}^n 2^i$$`).
 
 ```js
 import { extractMath } from 'extract-math'
@@ -69,6 +69,35 @@ This is especially useful if you're then passing the math expressions to a math 
 
 ```js
 katex.render(segment[1].raw, ...)
+```
+
+
+### Delimiting
+
+If you want to parse *LaTeX* delimiters:
+
+```js
+import { extractMath, Delimiters } from 'extract-math'
+
+const segments = extractMath('hello \\(e^{i\\pi}\\)', LATEX_DELIMITERS)
+console.log(segments)
+// Output: [
+//   { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
+//   { type: 'inline', math: true, value: 'e^{i\\pi}', raw: 'e^{i\\pi}' }
+// ]
+```
+
+If you want to parse with custom *TeX* delimiters:
+
+```js
+import { extractMath, Delimiters } from 'extract-math'
+
+const segments = extractMath('hello @e^{i\\pi}@', new Delimiters('@', '&'))
+console.log(segments)
+// Output: [
+//   { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
+//   { type: 'inline', math: true, value: 'e^{i\\pi}', raw: 'e^{i\\pi}' }
+// ]
 ```
 
 ## Contributing

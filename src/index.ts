@@ -105,10 +105,10 @@ export class Delimiters {
 
 const ESCAPE_DELIMITER = escapeStringRegexp('\\')
 
-export function extractMath (input: string, delimiters?: Delimiters): Segment[] {
-  if (!delimiters) {
-    delimiters = new Delimiters('$', '$$')
-  }
+export const TEX_DELIMITERS = new Delimiters('$', '$$')
+export const LATEX_DELIMITERS = new Delimiters('\\(', '\\)', '\\[', '\\]')
+
+export function extractMath (input: string, delimiters: Delimiters = TEX_DELIMITERS): Segment[] {
   const segments: Segment[] = []
   const pattern: RegExp = delimiters.regExp
 
