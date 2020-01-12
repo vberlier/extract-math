@@ -65,6 +65,19 @@ test('combined text', () => {
   expect(segments).toMatchSnapshot()
 })
 
+test('combined text custom delimiters', () => {
+  const segments = extractMath(`
+    Text with an inline formula @x ^ 2 + 5@ and a displayed equation:
+
+    &\\sum_{i=1}^n(x_i^2 - \\overline{x}^2)&
+
+    The inline formula is represented as \\@expression\\@ and the displayed equation as \\&expression\\&.
+    The \\@ symbol can be escaped like this: \\\\@
+    The \\& symbol can be escaped like this: \\\\&
+  `, '@', '&')
+  expect(segments).toMatchSnapshot()
+})
+
 test('escaped dollar in math', () => {
   const segments = extractMath(`$$hello\\$$$$t\\$hing\\$$\\$\\$$a$a`)
   expect(segments).toEqual([

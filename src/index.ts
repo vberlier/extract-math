@@ -1,32 +1,37 @@
+import { default as escapeStringRegexp } from 'escape-string-regexp'
+
 export interface Segment {
   type: 'text' | 'display' | 'inline'
   math: boolean
   value: string
   raw: string
 }
+const ESCAPE_DELIMITER = escapeStringRegexp('\\')
 
-export const SEGMENTS_REGEX = /(\\\$)|\$\$(.*?[^\\])\$\$|\$(.*?[^\\])\$/
-
-export function extractMath (input: string): Segment[] {
+export function extractMath (input: string, inlineDelimiter: string = '$', displayDelimiter: string = '$$'): Segment[] {
   const segments: Segment[] = []
+  const pattern: RegExp = buildRegExp(inlineDelimiter, displayDelimiter)
 
-  let dollar: string
+  let textWithInline: string
+  let textWithDisplay: string
   let display: string
   let inline: string
 
-  let [text, ...parts] = input.split(SEGMENTS_REGEX)
+  let [text, ...parts] = input.split(pattern)
 
   pushText(segments, text)
 
   while (parts.length > 0) {
-    [dollar, display, inline, ...parts] = parts
+    [textWithInline, textWithDisplay, display, inline, ...parts] = parts
 
-    if (dollar) {
-      pushText(segments, '$')
+    if (textWithInline) {
+      pushText(segments, inlineDelimiter)
+    } else if (textWithDisplay) {
+      pushText(segments, displayDelimiter)
     } else if (display) {
-      pushMath(segments, 'display', display)
+      pushMath(segments, 'display', display, inlineDelimiter, displayDelimiter)
     } else if (inline) {
-      pushMath(segments, 'inline', inline)
+      pushMath(segments, 'inline', inline, inlineDelimiter, displayDelimiter)
     }
 
     [text, ...parts] = parts
@@ -35,6 +40,35 @@ export function extractMath (input: string): Segment[] {
   }
 
   return segments
+}
+
+function buildRegExp (inlineDelimiter: string, displayDelimiter: string): RegExp {
+  const textWithInline = buildTextWithInlineRegExp(inlineDelimiter)
+  const textWithDisplay = buildTextWithDisplayRegExp(displayDelimiter)
+  const display = buildDisplayRegExp(displayDelimiter)
+  const inline = buildInlineRegExp(inlineDelimiter)
+
+  return new RegExp([textWithInline.source, textWithDisplay.source, display.source, inline.source].join('|'))
+}
+
+function buildTextWithInlineRegExp (inlineDelimiter: string): RegExp {
+  inlineDelimiter = escapeStringRegexp(inlineDelimiter)
+  return new RegExp(`(${ESCAPE_DELIMITER}${inlineDelimiter})`)
+}
+
+function buildTextWithDisplayRegExp (displayDelimiter: string): RegExp {
+  displayDelimiter = escapeStringRegexp(displayDelimiter)
+  return new RegExp(`(${ESCAPE_DELIMITER}${displayDelimiter})`)
+}
+
+function buildDisplayRegExp (displayDelimiter: string): RegExp {
+  displayDelimiter = escapeStringRegexp(displayDelimiter)
+  return new RegExp(`${displayDelimiter}(.*?[^${ESCAPE_DELIMITER}])${displayDelimiter}`)
+}
+
+function buildInlineRegExp (inlineDelimiter: string): RegExp {
+  inlineDelimiter = escapeStringRegexp(inlineDelimiter)
+  return new RegExp(`${inlineDelimiter}(.*?[^${ESCAPE_DELIMITER}])${inlineDelimiter}`)
 }
 
 function pushText (segments: Segment[], text: string) {
@@ -52,10 +86,29 @@ function pushText (segments: Segment[], text: string) {
   }
 }
 
-function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string) {
+function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string,
+                   inlineDelimiter: string, displayDelimiter: string) {
   if (!text) {
     return
   }
 
-  segments.push({ type: mode, math: true, value: text.replace(/\\\$/g, '$'), raw: text })
+  const value = cleanValue(text, inlineDelimiter, displayDelimiter)
+
+  segments.push({ type: mode, math: true, value: value, raw: text })
+}
+
+function cleanValue (text: string, inlineDelimiter: string, displayDelimiter: string) {
+  return text
+    .replace(buildReplaceDisplayRegExp(displayDelimiter), displayDelimiter)
+    .replace(buildReplaceInlineRegExp(inlineDelimiter), inlineDelimiter)
+}
+
+function buildReplaceDisplayRegExp (displayDelimiter: string) {
+  displayDelimiter = escapeStringRegexp(displayDelimiter)
+  return new RegExp(`${ESCAPE_DELIMITER}${displayDelimiter}`, 'g')
+}
+
+function buildReplaceInlineRegExp (inlineDelimiter: string) {
+  inlineDelimiter = escapeStringRegexp(inlineDelimiter)
+  return new RegExp(`${ESCAPE_DELIMITER}${inlineDelimiter}`, 'g')
 }
