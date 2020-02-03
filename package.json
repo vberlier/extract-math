@@ -29,7 +29,7 @@
     "postversion": "git push --follow-tags"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.11",
+    "@types/jest": "^25.1.1",
     "jest": "^25.1.0",
     "rimraf": "^3.0.0",
     "ts-jest": "^25.0.0",
