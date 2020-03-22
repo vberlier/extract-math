@@ -1,3 +1,5 @@
+import { default as escapeStringRegexp } from 'escape-string-regexp'
+
 export interface Segment {
   type: 'text' | 'display' | 'inline'
   math: boolean
@@ -5,57 +7,89 @@ export interface Segment {
   raw: string
 }
 
-export const SEGMENTS_REGEX = /(\\\$)|\$\$(.*?[^\\])\$\$|\$(.*?[^\\])\$/
+export interface ExtractMathOptions {
+  escape?: string
+  delimiters?: {
+    inline?: [string, string]
+    display?: [string, string]
+  }
+}
 
-export function extractMath (input: string): Segment[] {
-  const segments: Segment[] = []
+class Context {
+  private regex: RegExp
+  private escapedDelimiter: RegExp
 
-  let dollar: string
-  let display: string
-  let inline: string
+  public readonly segments: Segment[] = []
 
-  let [text, ...parts] = input.split(SEGMENTS_REGEX)
+  constructor (options?: ExtractMathOptions) {
+    const escape = options?.escape ?? '\\'
 
-  pushText(segments, text)
+    const [inlineBegin, inlineEnd] = options?.delimiters?.inline ?? ['$', '$']
+    const [displayBegin, displayEnd] = options?.delimiters?.display ?? ['$$', '$$']
 
-  while (parts.length > 0) {
-    [dollar, display, inline, ...parts] = parts
+    const [escEscape, escInlineBegin, escInlineEnd, escDisplayBegin, escDisplayEnd] = [
+      escape, inlineBegin, inlineEnd, displayBegin, displayEnd
+    ].map(escapeStringRegexp)
 
-    if (dollar) {
-      pushText(segments, '$')
-    } else if (display) {
-      pushMath(segments, 'display', display)
-    } else if (inline) {
-      pushMath(segments, 'inline', inline)
+    const escapedDelimiter = `${escEscape}(${escDisplayBegin}|${escDisplayEnd}|${escInlineBegin}|${escInlineEnd})`
+    const displayMath = `${escDisplayBegin}(.*?[^${escEscape}])${escDisplayEnd}`
+    const inlineMath = `${escInlineBegin}(.*?[^${escEscape}])${escInlineEnd}`
+
+    this.regex = new RegExp(`${escapedDelimiter}|${displayMath}|${inlineMath}`)
+    this.escapedDelimiter = new RegExp(escapedDelimiter, 'g')
+  }
+
+  public split (input: string) {
+    return input.split(this.regex)
+  }
+
+  public pushText (text: string) {
+    if (!text) {
+      return
     }
 
-    [text, ...parts] = parts
+    const last = this.segments[this.segments.length - 1]
 
-    pushText(segments, text)
+    if (last && last.type === 'text') {
+      last.value += text
+      last.raw += text
+    } else {
+      this.segments.push({ type: 'text', math: false, value: text, raw: text })
+    }
   }
 
-  return segments
+  public pushMath (mode: 'inline' | 'display', text: string) {
+    if (!text) {
+      return
+    }
+
+    this.segments.push({ type: mode, math: true, value: text.replace(this.escapedDelimiter, '$1'), raw: text })
+  }
+
 }
 
-function pushText (segments: Segment[], text: string) {
-  if (!text) {
-    return
+export function extractMath (input: string, options?: ExtractMathOptions): Segment[] {
+  const ctx = new Context(options)
+
+  let [text, ...parts] = ctx.split(input)
+
+  ctx.pushText(text)
+
+  while (parts.length > 0) {
+    const [delimiter, display, inline, ...rest] = parts
+
+    if (delimiter) {
+      ctx.pushText(delimiter)
+    } else if (display) {
+      ctx.pushMath('display', display)
+    } else if (inline) {
+      ctx.pushMath('inline', inline)
+    }
+
+    [text, ...parts] = rest
+
+    ctx.pushText(text)
   }
 
-  const last = segments[segments.length - 1]
-
-  if (last && last.type === 'text') {
-    last.value += text
-    last.raw += text
-  } else {
-    segments.push({ type: 'text', math: false, value: text, raw: text })
-  }
-}
-
-function pushMath (segments: Segment[], mode: 'inline' | 'display', text: string) {
-  if (!text) {
-    return
-  }
-
-  segments.push({ type: mode, math: true, value: text.replace(/\\\$/g, '$'), raw: text })
+  return ctx.segments
 }

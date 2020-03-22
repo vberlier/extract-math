@@ -48,3 +48,109 @@ Array [
   },
 ]
 `;
+
+exports[`combined text custom delimiters 1`] = `
+Array [
+  Object {
+    "math": false,
+    "raw": "
+    Text with an inline formula ",
+    "type": "text",
+    "value": "
+    Text with an inline formula ",
+  },
+  Object {
+    "math": true,
+    "raw": "x ^ 2 + 5",
+    "type": "inline",
+    "value": "x ^ 2 + 5",
+  },
+  Object {
+    "math": false,
+    "raw": " and a displayed equation:
+
+    ",
+    "type": "text",
+    "value": " and a displayed equation:
+
+    ",
+  },
+  Object {
+    "math": true,
+    "raw": "\\\\sum_{i=1}^n(x_i^2 - \\\\overline{x}^2)",
+    "type": "display",
+    "value": "\\\\sum_{i=1}^n(x_i^2 - \\\\overline{x}^2)",
+  },
+  Object {
+    "math": false,
+    "raw": "
+
+    The inline formula is represented as @expression@ and the displayed equation as &expression&.
+    The @ symbol can be escaped like this: \\\\@
+    The & symbol can be escaped like this: \\\\&
+  ",
+    "type": "text",
+    "value": "
+
+    The inline formula is represented as @expression@ and the displayed equation as &expression&.
+    The @ symbol can be escaped like this: \\\\@
+    The & symbol can be escaped like this: \\\\&
+  ",
+  },
+]
+`;
+
+exports[`combined text custom opening and closing delimiters 1`] = `
+Array [
+  Object {
+    "math": false,
+    "raw": "
+    Text with an inline formula ",
+    "type": "text",
+    "value": "
+    Text with an inline formula ",
+  },
+  Object {
+    "math": true,
+    "raw": "x ^ 2 + 5",
+    "type": "inline",
+    "value": "x ^ 2 + 5",
+  },
+  Object {
+    "math": false,
+    "raw": " and a displayed equation:
+
+    ",
+    "type": "text",
+    "value": " and a displayed equation:
+
+    ",
+  },
+  Object {
+    "math": true,
+    "raw": "\\\\sum_{i=1}^n(x_i^2 - \\\\overline{x}^2)",
+    "type": "display",
+    "value": "\\\\sum_{i=1}^n(x_i^2 - \\\\overline{x}^2)",
+  },
+  Object {
+    "math": false,
+    "raw": "
+
+    The inline formula is represented as \\\\(expression\\\\) and the displayed equation as \\\\[expression\\\\].
+    The \\\\( symbol can be escaped like this: \\\\\\\\(
+    The \\\\) symbol can be escaped like this: \\\\\\\\)
+    The \\\\[ symbol can be escaped like this: \\\\\\\\[
+    The \\\\] symbol can be escaped like this: \\\\\\\\]
+  ",
+    "type": "text",
+    "value": "
+
+    The inline formula is represented as \\\\(expression\\\\) and the displayed equation as \\\\[expression\\\\].
+    The \\\\( symbol can be escaped like this: \\\\\\\\(
+    The \\\\) symbol can be escaped like this: \\\\\\\\)
+    The \\\\[ symbol can be escaped like this: \\\\\\\\[
+    The \\\\] symbol can be escaped like this: \\\\\\\\]
+  ",
+  },
+]
+`;
