@@ -19,6 +19,23 @@ console.log(segments)
 // ]
 ```
 
+It's possible to use custom delimiters and a custom escaping character. You can extract formulas that use LaTeX math delimiters with the following optons:
+
+```js
+const segments = extractMath('hello \\(e^{i\\pi}\\)', {
+  delimiters: {
+    inline: ['\\(', '\\)'],
+    display: ['\\[', '\\]']
+  }
+})
+
+console.log(segments)
+// Output: [
+//   { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
+//   { type: 'inline', math: true, value: 'e^{i\\pi}', raw: 'e^{i\\pi}' }
+// ]
+```
+
 ## Installation
 
 You can install `extract-math` with your `npm` client of choice.
@@ -29,7 +46,7 @@ $ npm install extract-math
 
 ## Usage
 
-### extractMath(input)
+### extractMath(input, options?)
 
 Parse the input string and return an array of `Segment` objects. `Segment` objects are defined by the following typescript interface:
 
@@ -49,6 +66,32 @@ The function splits the input string into 3 different types of segments:
 - Plain text segments have a `text` type and the `math` property set to `false`
 - Displayed equations have a `display` type and the `math` property set to `true`
 - Inline formulas have an `inline` type and the `math` property set to `true`
+
+The second parameter is optional and lets you specify custom delimiters and a custom escaping character. The options must match the following typescript interface:
+
+```ts
+interface ExtractMathOptions {
+  escape?: string
+  delimiters?: {
+    inline?: [string, string]
+    display?: [string, string]
+  }
+}
+```
+
+> The `ExtractMathOptions` interface can be imported with `import { ExtractMathOptions } from 'extract-math'`
+
+Here are the default values:
+
+```js
+{
+  escape: '\\',
+  delimiters: {
+    inline: ['$', '$'],
+    display: ['$$', '$$']
+  }
+}
+```
 
 ### Escaping
 
