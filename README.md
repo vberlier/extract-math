@@ -12,22 +12,6 @@ This package parses [TeX shorthands](https://en.wikibooks.org/wiki/LaTeX/Mathema
 import { extractMath } from 'extract-math'
 
 const segments = extractMath('hello $e^{i\\pi}$')
-console.log(segments)
-// Output: [
-//   { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
-//   { type: 'inline', math: true, value: 'e^{i\\pi}', raw: 'e^{i\\pi}' }
-// ]
-```
-
-It's possible to use custom delimiters and a custom escaping character. You can extract formulas that use LaTeX math delimiters with the following optons:
-
-```js
-const segments = extractMath('hello \\(e^{i\\pi}\\)', {
-  delimiters: {
-    inline: ['\\(', '\\)'],
-    display: ['\\[', '\\]']
-  }
-})
 
 console.log(segments)
 // Output: [
@@ -35,6 +19,8 @@ console.log(segments)
 //   { type: 'inline', math: true, value: 'e^{i\\pi}', raw: 'e^{i\\pi}' }
 // ]
 ```
+
+The primary use-case is to process the math segments with a math typesetting library like [KaTeX](https://katex.org/).
 
 ## Installation
 
@@ -67,7 +53,9 @@ The function splits the input string into 3 different types of segments:
 - Displayed equations have a `display` type and the `math` property set to `true`
 - Inline formulas have an `inline` type and the `math` property set to `true`
 
-The second parameter is optional and lets you specify custom delimiters and a custom escaping character. The options must match the following typescript interface:
+The function will check that the closing delimiter isn't immediately followed by a digit before extracting a math segment. This prevents input like `$20,000 and $30,000` from being interpreted as inline math.
+
+The second parameter is optional and lets you specify custom options:
 
 ```ts
 interface ExtractMathOptions {
@@ -76,6 +64,7 @@ interface ExtractMathOptions {
     inline?: [string, string]
     display?: [string, string]
   }
+  allowSurroundingSpace?: Array<'display' | 'inline'>
 }
 ```
 
@@ -89,16 +78,49 @@ Here are the default values:
   delimiters: {
     inline: ['$', '$'],
     display: ['$$', '$$']
-  }
+  },
+  allowSurroundingSpace: ['display']
 }
+```
+
+You can extract formulas that use LaTeX math delimiters with the following options:
+
+```js
+const segments = extractMath('hello \\(e^{i\\pi}\\)', {
+  delimiters: {
+    inline: ['\\(', '\\)'],
+    display: ['\\[', '\\]']
+  }
+})
+
+console.log(segments)
+// Output: [
+//   { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
+//   { type: 'inline', math: true, value: 'e^{i\\pi}', raw: 'e^{i\\pi}' }
+// ]
+```
+
+By default, only the `display` mode allows the formula to be surrounded by space. You can change this with the `allowSurroundingSpace` option:
+
+```js
+segments = extractMath('$ 42 $$$ 42 $$', {
+  allowSurroundingSpace: ['inline', 'display']
+})
+
+console.log(segments)
+// Output: [
+//   { type: 'inline', math: true, value: ' 42 ', raw: ' 42 ' },
+//   { type: 'display', math: true, value: ' 42 ', raw: ' 42 ' }
+// ]
 ```
 
 ### Escaping
 
-Any dollar sign `$` immediately preceded by a backslash `\` will be automatically escaped.
+Any delimiter immediately preceded by a backslash `\` will be automatically escaped.
 
 ```js
 const segments = extractMath('in plain \\$ text $$in \\$ equation$$')
+
 console.log(segments)
 // Output: [
 //   { type: 'text', math: false, value: 'in plain $ text ', raw: 'in plain $ text ' },
@@ -106,12 +128,12 @@ console.log(segments)
 // ]
 ```
 
-The `raw` property is set to the original string contained between the math delimiters, meaning that the escape sequences are not interpreted. For plain text segments, the property is equal to the `value` property.
+The `raw` property is set to the original string without interpreting the escape sequences. For plain text segments, the property is equal to the `value` property.
 
-This is especially useful if you're then passing the math expressions to a math typesetting library like [KaTeX](https://katex.org/), which expects dollar signs to be escaped.
+This comes in handy if you're feeding the math expressions to a math typesetting library like [KaTeX](https://katex.org/) that expects dollar signs to be escaped.
 
 ```js
-katex.render(segment[1].raw, ...)
+katex.render(segments[1].raw, ...)
 ```
 
 ## Contributing
@@ -122,7 +144,7 @@ Contributions are welcome. This project uses [jest](https://jestjs.io/) for test
 $ npm test
 ```
 
-The code follows the [javascript standard](https://standardjs.com/) style guide [adapted for typescript](https://github.com/blakeembrey/tslint-config-standard).
+The code follows the [javascript standard](https://standardjs.com/) style guide [adapted for typescript](https://github.com/standard/eslint-config-standard-with-typescript).
 
 ```bash
 $ npm run lint
