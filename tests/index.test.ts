@@ -66,9 +66,9 @@ test('combined text', () => {
 })
 
 test('escaped dollar in math', () => {
-  const segments = extractMath('$$hello\\$$$$t\\$hing\\$$\\$\\$a$a$a')
+  const segments = extractMath('$$hello\\$$$$$t\\$hing\\$$\\$\\$a$a$a')
   expect(segments).toEqual([
-    { type: 'display', math: true, value: 'hello$', raw: 'hello\\$' },
+    { type: 'display', math: true, value: 'hello$$', raw: 'hello\\$$' },
     { type: 'inline', math: true, value: 't$hing$', raw: 't\\$hing\\$' },
     { type: 'text', math: false, value: '$$a', raw: '$$a' },
     { type: 'inline', math: true, value: 'a', raw: 'a' },
@@ -145,7 +145,6 @@ test('combined text custom opening and closing delimiters', () => {
 
 test('inline with surrounding space', () => {
   const segments = extractMath('hello $ 1 + 2 $')
-
   expect(segments).toEqual([
     { type: 'text', math: false, value: 'hello $ 1 + 2 $', raw: 'hello $ 1 + 2 $' }
   ])
@@ -153,7 +152,6 @@ test('inline with surrounding space', () => {
 
 test('display with surrounding space', () => {
   const segments = extractMath('hello $$ 1 + 2 $$')
-
   expect(segments).toEqual([
     { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
     { type: 'display', math: true, value: ' 1 + 2 ', raw: ' 1 + 2 ' }
@@ -166,7 +164,6 @@ test('custom delimiters and inline with surrounding space', () => {
       inline: ['=|', '|=']
     }
   })
-
   expect(segments).toEqual([
     { type: 'text', math: false, value: 'hello =| 1 + 2 |=', raw: 'hello =| 1 + 2 |=' }
   ])
@@ -179,7 +176,6 @@ test('custom delimiters and inline with surrounding space and inline allowed', (
     },
     allowSurroundingSpace: ['inline']
   })
-
   expect(segments).toEqual([
     { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
     { type: 'inline', math: true, value: ' 1 + 2 ', raw: ' 1 + 2 ' }
@@ -188,10 +184,40 @@ test('custom delimiters and inline with surrounding space and inline allowed', (
 
 test('pandoc example', () => {
   const segments = extractMath('math $here$ 1 but not for $20,000 and $30,000')
-
   expect(segments).toEqual([
     { type: 'text', math: false, value: 'math ', raw: 'math ' },
     { type: 'inline', math: true, value: 'here', raw: 'here' },
     { type: 'text', math: false, value: ' 1 but not for $20,000 and $30,000', raw: ' 1 but not for $20,000 and $30,000' }
+  ])
+})
+
+test('just text with prices', () => {
+  const segments = extractMath('John had $5 in his pocket while Jane had $6.')
+  expect(segments).toEqual([
+    {
+      type: 'text',
+      math: false,
+      value: 'John had $5 in his pocket while Jane had $6.',
+      raw: 'John had $5 in his pocket while Jane had $6.'
+    }
+  ])
+})
+
+test('text with prices and inline math', () => {
+  const segments = extractMath('John had $5 in his $pocket$ while Jane had $6.')
+  expect(segments).toEqual([
+    {
+      type: 'text',
+      math: false,
+      value: 'John had $5 in his ',
+      raw: 'John had $5 in his '
+    },
+    { type: 'inline', math: true, value: 'pocket', raw: 'pocket' },
+    {
+      type: 'text',
+      math: false,
+      value: ' while Jane had $6.',
+      raw: ' while Jane had $6.'
+    }
   ])
 })
