@@ -185,3 +185,13 @@ test('custom delimiters and inline with surrounding space and inline allowed', (
     { type: 'inline', math: true, value: ' 1 + 2 ', raw: ' 1 + 2 ' }
   ])
 })
+
+test('pandoc example', () => {
+  const segments = extractMath('math $here$ 1 but not for $20,000 and $30,000')
+
+  expect(segments).toEqual([
+    { type: 'text', math: false, value: 'math ', raw: 'math ' },
+    { type: 'inline', math: true, value: 'here', raw: 'here' },
+    { type: 'text', math: false, value: ' 1 but not for $20,000 and $30,000', raw: ' 1 but not for $20,000 and $30,000' }
+  ])
+})

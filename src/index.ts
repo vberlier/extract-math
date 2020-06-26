@@ -51,12 +51,16 @@ class Context {
     const displayMath = `${escDisplayBegin}(.*?[^${escEscape}])${escDisplayEnd}`
     const inlineMath = `${escInlineBegin}(.*?[^${escEscape}])${escInlineEnd}`
 
-    this.regex = new RegExp(`${escapedDelimiter}|${displayMath}|${inlineMath}`)
+    this.regex = new RegExp([escapedDelimiter, displayMath, inlineMath].join('|'))
     this.escapedDelimiter = new RegExp(escapedDelimiter, 'g')
   }
 
   public split (input: string) {
     return input.split(this.regex)
+  }
+
+  public wrap (input: string, mode: 'inline' | 'display') {
+    return this.delimiters[mode].join(input)
   }
 
   public pushText (text: string) {
@@ -80,7 +84,7 @@ class Context {
     }
 
     if (!this.allowSurroundingSpace.has(mode) && text.match(/^\s|\s$/)) {
-      this.pushText(this.delimiters[mode].join(text))
+      this.pushText(this.wrap(text, mode))
     } else {
       this.segments.push({ type: mode, math: true, value: text.replace(this.escapedDelimiter, '$1'), raw: text })
     }
@@ -99,10 +103,15 @@ export function extractMath (input: string, options?: ExtractMathOptions): Segme
 
     if (delimiter) {
       ctx.pushText(delimiter)
-    } else if (display) {
-      ctx.pushMath('display', display)
-    } else if (inline) {
-      ctx.pushMath('inline', inline)
+    } else {
+      const mode = display ? 'display' : 'inline'
+      const math = display || inline
+
+      if (rest[0].match(/^\d/)) {
+        ctx.pushText(ctx.wrap(math, mode))
+      } else {
+        ctx.pushMath(mode, math)
+      }
     }
 
     [text, ...parts] = rest
