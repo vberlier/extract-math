@@ -66,7 +66,7 @@ test('combined text', () => {
 })
 
 test('escaped dollar in math', () => {
-  const segments = extractMath(`$$hello\\$$$$t\\$hing\\$$\\$\\$a$a$a`)
+  const segments = extractMath('$$hello\\$$$$t\\$hing\\$$\\$\\$a$a$a')
   expect(segments).toEqual([
     { type: 'display', math: true, value: 'hello$', raw: 'hello\\$' },
     { type: 'inline', math: true, value: 't$hing$', raw: 't\\$hing\\$' },
@@ -89,7 +89,7 @@ test('custom delimiters', () => {
 })
 
 test('custom delimiters and custom escape', () => {
-  const segments = extractMath(`*[hello.*)*]*(t.*)hing.*)*).*(.*(a*(a*)a`, {
+  const segments = extractMath('*[hello.*)*]*(t.*)hing.*)*).*(.*(a*(a*)a', {
     escape: '.',
     delimiters: {
       inline: ['*(', '*)'],
@@ -137,7 +137,7 @@ test('combined text custom opening and closing delimiters', () => {
   `, {
     delimiters: {
       inline: ['\\(', '\\)'],
-      display: [ '\\[', '\\]']
+      display: ['\\[', '\\]']
     }
   })
   expect(segments).toMatchSnapshot()

@@ -1,4 +1,4 @@
-import { default as escapeStringRegexp } from 'escape-string-regexp'
+import escapeStringRegexp from 'escape-string-regexp'
 
 export interface Segment {
   type: 'text' | 'display' | 'inline'
@@ -16,8 +16,8 @@ export interface ExtractMathOptions {
 }
 
 class Context {
-  private regex: RegExp
-  private escapedDelimiter: RegExp
+  private readonly regex: RegExp
+  private readonly escapedDelimiter: RegExp
 
   public readonly segments: Segment[] = []
 
@@ -65,7 +65,6 @@ class Context {
 
     this.segments.push({ type: mode, math: true, value: text.replace(this.escapedDelimiter, '$1'), raw: text })
   }
-
 }
 
 export function extractMath (input: string, options?: ExtractMathOptions): Segment[] {
