@@ -13,9 +13,17 @@ export interface ExtractMathOptions {
     inline?: [string, string]
     display?: [string, string]
   }
+  allowSurroundingSpace?: Array<'display' | 'inline'>
 }
 
 class Context {
+  private readonly delimiters: {
+    inline: [string, string]
+    display: [string, string]
+  }
+
+  private readonly allowSurroundingSpace: Set<'display' | 'inline'>
+
   private readonly regex: RegExp
   private readonly escapedDelimiter: RegExp
 
@@ -24,11 +32,19 @@ class Context {
   constructor (options?: ExtractMathOptions) {
     const escape = options?.escape ?? '\\'
 
-    const [inlineBegin, inlineEnd] = options?.delimiters?.inline ?? ['$', '$']
-    const [displayBegin, displayEnd] = options?.delimiters?.display ?? ['$$', '$$']
+    this.delimiters = {
+      inline: options?.delimiters?.inline ?? ['$', '$'],
+      display: options?.delimiters?.display ?? ['$$', '$$']
+    }
+
+    this.allowSurroundingSpace = new Set(options?.allowSurroundingSpace ?? ['display'])
 
     const [escEscape, escInlineBegin, escInlineEnd, escDisplayBegin, escDisplayEnd] = [
-      escape, inlineBegin, inlineEnd, displayBegin, displayEnd
+      escape,
+      this.delimiters.inline[0],
+      this.delimiters.inline[1],
+      this.delimiters.display[0],
+      this.delimiters.display[1]
     ].map(escapeStringRegexp)
 
     const escapedDelimiter = `${escEscape}(${escDisplayBegin}|${escDisplayEnd}|${escInlineBegin}|${escInlineEnd})`
@@ -63,7 +79,11 @@ class Context {
       return
     }
 
-    this.segments.push({ type: mode, math: true, value: text.replace(this.escapedDelimiter, '$1'), raw: text })
+    if (!this.allowSurroundingSpace.has(mode) && text.match(/^\s|\s$/)) {
+      this.pushText(this.delimiters[mode].join(text))
+    } else {
+      this.segments.push({ type: mode, math: true, value: text.replace(this.escapedDelimiter, '$1'), raw: text })
+    }
   }
 }
 

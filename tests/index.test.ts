@@ -142,3 +142,46 @@ test('combined text custom opening and closing delimiters', () => {
   })
   expect(segments).toMatchSnapshot()
 })
+
+test('inline with surrounding space', () => {
+  const segments = extractMath('hello $ 1 + 2 $')
+
+  expect(segments).toEqual([
+    { type: 'text', math: false, value: 'hello $ 1 + 2 $', raw: 'hello $ 1 + 2 $' }
+  ])
+})
+
+test('display with surrounding space', () => {
+  const segments = extractMath('hello $$ 1 + 2 $$')
+
+  expect(segments).toEqual([
+    { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
+    { type: 'display', math: true, value: ' 1 + 2 ', raw: ' 1 + 2 ' }
+  ])
+})
+
+test('custom delimiters and inline with surrounding space', () => {
+  const segments = extractMath('hello =| 1 + 2 |=', {
+    delimiters: {
+      inline: ['=|', '|=']
+    }
+  })
+
+  expect(segments).toEqual([
+    { type: 'text', math: false, value: 'hello =| 1 + 2 |=', raw: 'hello =| 1 + 2 |=' }
+  ])
+})
+
+test('custom delimiters and inline with surrounding space and inline allowed', () => {
+  const segments = extractMath('hello =| 1 + 2 |=', {
+    delimiters: {
+      inline: ['=|', '|=']
+    },
+    allowSurroundingSpace: ['inline']
+  })
+
+  expect(segments).toEqual([
+    { type: 'text', math: false, value: 'hello ', raw: 'hello ' },
+    { type: 'inline', math: true, value: ' 1 + 2 ', raw: ' 1 + 2 ' }
+  ])
+})
