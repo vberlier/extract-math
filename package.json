@@ -19,6 +19,7 @@
     "url": "https://github.com/vberlier/extract-math/issues"
   },
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "lint": "eslint --ignore-path ./.gitignore .",
     "test": "jest",
