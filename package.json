@@ -1,6 +1,6 @@
 {
   "name": "extract-math",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Extract TeX math environments",
   "author": "Valentin Berlier <berlier.v@gmail.com>",
   "license": "MIT",
