@@ -63,8 +63,6 @@ class Context {
 
     this.regex = new RegExp([escapedDelimiter, displayMath, inlineMath].join('|'))
     this.escapedDelimiter = new RegExp(escapedDelimiter, 'g')
-
-    console.log(this.regex)
   }
 
   public split (input: string) {
